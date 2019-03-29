@@ -46,6 +46,10 @@ button:hover {
   text-decoration: line-through;
 }
 
+form {
+  display: inline-block;
+}
+
 .form-field {
   margin: 15px 0;
 }

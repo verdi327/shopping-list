@@ -2,6 +2,14 @@
 
 const SHOPPING_LIST_DISPLAY = $('.shopping-list');
 
+Storage.prototype.setObj = function(key, obj) {
+  return this.setItem(key, JSON.stringify(obj));
+};
+
+Storage.prototype.getObj = function(key) {
+  return JSON.parse(this.getItem(key));
+};
+
 class Item {
   constructor(name, completed=false){
     this.name = name.toLowerCase().trim();
@@ -11,8 +19,12 @@ class Item {
 
 class ShoppingList {
   constructor(){
-    this.store = [];
+    this.store = localStorage.getObj('shopping-list') ? localStorage.getObj('shopping-list') : [];
     this.showCompleted = true;
+  }
+
+  save() {
+    localStorage.setObj('shopping-list', this.store);
   }
 
   toggleShowCompleted() {
@@ -30,16 +42,24 @@ class ShoppingList {
     }
     let newItem = new Item(name);
     this.store.push(newItem);
+    this.save();
   }
   
   removeItem(name){
     let filteredList = this.store.filter(item => item.name !== name);
     this.store = filteredList;
+    this.save();
   }
 
   toggleComplete(name){
     let item = this.store.find(item => item.name === name);
     item.completed = !item.completed;
+    this.save();
+  }
+
+  reset() {
+    localStorage.clear();
+    this.store = [];
   }
 
   editItem(name, newName) {
@@ -53,6 +73,7 @@ class ShoppingList {
     }
     let item = this.store.find(item => item.name === name);
     item.name = newName;
+    this.save();
   }
 
   buildItemTemplate(item){
@@ -157,7 +178,15 @@ function handleListFiltering() {
   });
 }
 
+function handleClearList() {
+  $('.container').on('click', 'button[name="clear-list"]', function(event) {
+    shoppingList.reset();
+    shoppingList.renderList();
+  });
+}
+
 function main() {
+  shoppingList.renderList();
   handleFormClickSubmit();
   handleFormKeyboardSubmit();
   handleRemoveItem();
@@ -165,6 +194,7 @@ function main() {
   handleShowCompletedItems();
   handleEditItem();
   handleListFiltering();
+  handleClearList();
 }
 
 $(main);
