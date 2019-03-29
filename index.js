@@ -2,14 +2,6 @@
 
 const SHOPPING_LIST_DISPLAY = $('.shopping-list');
 
-Storage.prototype.setObj = function(key, obj) {
-  return this.setItem(key, JSON.stringify(obj));
-};
-
-Storage.prototype.getObj = function(key) {
-  return JSON.parse(this.getItem(key));
-};
-
 class Item {
   constructor(name, completed=false){
     this.name = name.toLowerCase().trim();
@@ -19,12 +11,12 @@ class Item {
 
 class ShoppingList {
   constructor(){
-    this.store = localStorage.getObj('shopping-list') ? localStorage.getObj('shopping-list') : [];
+    this.store = localStorage.getItem('shopping-list') ? JSON.parse(localStorage.getItem('shopping-list')) : [];
     this.showCompleted = true;
   }
 
   save() {
-    localStorage.setObj('shopping-list', this.store);
+    localStorage.setItem('shopping-list', JSON.stringify(this.store));
   }
 
   toggleShowCompleted() {
@@ -32,27 +24,27 @@ class ShoppingList {
   }
 
   addItem(name){
-    if (!name) {
-      return;
-    }
-    let item = this.store.find(item => item.name === name);
+    if (!name) return;
+
+    const newItem = new Item(name);
+    const item = this.store.find(item => item.name === newItem.name);
+
     if (item) {
       alert(`${name} already exists in your shopping list`);
       return;
     }
-    let newItem = new Item(name);
     this.store.push(newItem);
     this.save();
   }
   
   removeItem(name){
-    let filteredList = this.store.filter(item => item.name !== name);
+    const filteredList = this.store.filter(item => item.name !== name);
     this.store = filteredList;
     this.save();
   }
 
   toggleComplete(name){
-    let item = this.store.find(item => item.name === name);
+    const item = this.store.find(item => item.name === name);
     item.completed = !item.completed;
     this.save();
   }
@@ -63,21 +55,20 @@ class ShoppingList {
   }
 
   editItem(name, newName) {
-    if (!newName) {
-      return;
-    }
-    let existingItem = this.store.find(item => item.name === newName);
+    if (!newName) return;
+    
+    const existingItem = this.store.find(item => item.name === newName);
     if (existingItem) {
       alert(`An item named ${newName} already exist. Please choose another name`);
       return;
     }
-    let item = this.store.find(item => item.name === name);
+    const item = this.store.find(item => item.name === name);
     item.name = newName;
     this.save();
   }
 
   buildItemTemplate(item){
-    let markComplete = item.completed ? 'shopping-item__checked' : '';
+    const markComplete = item.completed ? 'shopping-item__checked' : '';
 
     return `<li>
       <span class="shopping-item ${markComplete}">${item.name}</span>
@@ -110,7 +101,8 @@ class ShoppingList {
       });
     }
 
-    const htmlItems = items.map(item => this.buildItemTemplate(item)).join('\n');
+    // don't call functions, you give them to other functions who call them
+    const htmlItems = items.map(this.buildItemTemplate); 
     SHOPPING_LIST_DISPLAY.html(htmlItems);
   }
 }
@@ -125,15 +117,6 @@ function handleFormClickSubmit(){
     shoppingList.addItem(itemName);
     shoppingList.renderList();
     input.val('');
-  });
-}
-
-function handleFormKeyboardSubmit(){
-  $('.container').keypress(function (e) {
-    if (e.which === 13) {
-      $('form').submit();
-      return false;
-    }
   });
 }
 
@@ -170,11 +153,9 @@ function handleEditItem() {
 }
 
 function handleListFiltering() {
-  $('.container').on('keydown', '#shopping-list-filter', function(event) {
-    setTimeout(function() {
-      let searchString = $('#shopping-list-filter').val();
-      shoppingList.renderList(searchString);
-    }, 50);
+  $('#shopping-list-filter').on('keyup', function(event) {
+    const searchString = $(event.target).val();
+    shoppingList.renderList(searchString);
   });
 }
 
@@ -188,7 +169,6 @@ function handleClearList() {
 function main() {
   shoppingList.renderList();
   handleFormClickSubmit();
-  handleFormKeyboardSubmit();
   handleRemoveItem();
   handleToggleComplete();
   handleShowCompletedItems();
