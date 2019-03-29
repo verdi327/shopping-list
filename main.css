@@ -45,3 +45,15 @@ button:hover {
 .shopping-item__checked {
   text-decoration: line-through;
 }
+
+form {
+  display: inline-block;
+}
+
+.form-field {
+  margin: 15px 0;
+}
+
+#shopping-list-filter {
+  min-width: 215px;
+}
