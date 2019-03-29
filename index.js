@@ -24,26 +24,12 @@ class ShoppingList {
     this.store = filteredList;
   }
 
-  markComplete(name){
-    this.store = this.store.map(item => {
-      if (item.name === name) {
-        item.completed = true;
-      }
-      return item;
-    });
-  }
-
-  markIncomplete(name){
-    this.store = this.store.map(item => {
-      if (item.name === name) {
-        item = {name: name, completed: false};
-      }
-      return item;
-    });
+  toggleComplete(name){
+    let item = this.store.find(item => item.name === name);
+    item.completed = !item.completed;
   }
 
   buildItemTemplate(item){
-    console.log('build', item);
     let markComplete = item.completed ? 'shopping-item__checked' : '';
 
     return `<li>
@@ -95,18 +81,10 @@ function handleRemoveItem() {
   });
 }
 
-function handleMarkItemComplete() {
+function handleToggleComplete() {
   $('.container').on('click', '.shopping-item-toggle', function(event) {
     const listItem = $(this).closest('li').find('.shopping-item').text();
-    shoppingList.markComplete(listItem);
-    shoppingList.renderList();
-  });
-}
-
-function handleMarkItemIncomplete() {
-  $('.container').on('click', '.shopping-item-toggle', function(event) {
-    const listItem = $(this).closest('li').find('.shopping-item').text();
-    shoppingList.markIncomplete(listItem);
+    shoppingList.toggleComplete(listItem);
     shoppingList.renderList();
   });
 }
@@ -115,8 +93,7 @@ function main() {
   handleFormClickSubmit();
   handleFormKeyboardSubmit();
   handleRemoveItem();
-  handleMarkItemComplete();
-  handleMarkItemIncomplete();
+  handleToggleComplete();
 }
 
 $(main);
