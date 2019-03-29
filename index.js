@@ -20,6 +20,9 @@ class ShoppingList {
   }
 
   addItem(name){
+    if (!name) {
+      return;
+    }
     let item = this.store.find(item => item.name === name);
     if (item) {
       alert(`${name} already exists in your shopping list`);
@@ -39,6 +42,19 @@ class ShoppingList {
     item.completed = !item.completed;
   }
 
+  editItem(name, newName) {
+    if (!newName) {
+      return;
+    }
+    let existingItem = this.store.find(item => item.name === newName);
+    if (existingItem) {
+      alert(`An item named ${newName} already exist. Please choose another name`);
+      return;
+    }
+    let item = this.store.find(item => item.name === name);
+    item.name = newName;
+  }
+
   buildItemTemplate(item){
     let markComplete = item.completed ? 'shopping-item__checked' : '';
 
@@ -50,6 +66,9 @@ class ShoppingList {
         </button>
         <button class="shopping-item-delete">
           <span class="button-label">delete</span>
+        </button>
+        <button class="shopping-item-edit">
+          <span class="button-label">edit</span>
         </button>
       </div>
     </li>`;
@@ -112,12 +131,22 @@ function handleShowCompletedItems() {
   });
 }
 
+function handleEditItem() {
+  $('.container').on('click', '.shopping-item-edit', function(event) {
+    const listItem = $(this).closest('li').find('.shopping-item').text();
+    const newName = prompt('Please enter a new item name');
+    shoppingList.editItem(listItem, newName);
+    shoppingList.renderList();
+  });
+}
+
 function main() {
   handleFormClickSubmit();
   handleFormKeyboardSubmit();
   handleRemoveItem();
   handleToggleComplete();
   handleShowCompletedItems();
+  handleEditItem();
 }
 
 $(main);
