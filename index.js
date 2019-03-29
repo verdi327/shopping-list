@@ -74,13 +74,21 @@ class ShoppingList {
     </li>`;
   }
 
-  renderList() {
+  renderList(searchString=null) {
     let items;
     if (this.showCompleted) {
       items = this.store;
     } else {
       items = this.store.filter(item => !item.completed);
     }
+
+    if (searchString) {
+      searchString = searchString.toLowerCase();
+      items = items.filter(item => {
+        return item.name.slice(0, searchString.length) === searchString;
+      });
+    }
+
     const htmlItems = items.map(item => this.buildItemTemplate(item)).join('\n');
     SHOPPING_LIST_DISPLAY.html(htmlItems);
   }
@@ -140,6 +148,15 @@ function handleEditItem() {
   });
 }
 
+function handleListFiltering() {
+  $('.container').on('keydown', '#shopping-list-filter', function(event) {
+    setTimeout(function() {
+      let searchString = $('#shopping-list-filter').val();
+      shoppingList.renderList(searchString);
+    }, 50);
+  });
+}
+
 function main() {
   handleFormClickSubmit();
   handleFormKeyboardSubmit();
@@ -147,6 +164,7 @@ function main() {
   handleToggleComplete();
   handleShowCompletedItems();
   handleEditItem();
+  handleListFiltering();
 }
 
 $(main);
