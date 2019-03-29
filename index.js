@@ -4,7 +4,7 @@ const SHOPPING_LIST_DISPLAY = $('.shopping-list');
 
 class Item {
   constructor(name, completed=false){
-    this.name = name;
+    this.name = name.toLowerCase().trim();
     this.completed = completed;
   }
 }
@@ -12,9 +12,19 @@ class Item {
 class ShoppingList {
   constructor(){
     this.store = [];
+    this.showCompleted = true;
+  }
+
+  toggleShowCompleted() {
+    this.showCompleted = !this.showCompleted;
   }
 
   addItem(name){
+    let item = this.store.find(item => item.name === name);
+    if (item) {
+      alert(`${name} already exists in your shopping list`);
+      return;
+    }
     let newItem = new Item(name);
     this.store.push(newItem);
   }
@@ -45,8 +55,14 @@ class ShoppingList {
     </li>`;
   }
 
-  renderList(){
-    const htmlItems = this.store.map(item => this.buildItemTemplate(item)).join('\n');
+  renderList() {
+    let items;
+    if (this.showCompleted) {
+      items = this.store;
+    } else {
+      items = this.store.filter(item => !item.completed);
+    }
+    const htmlItems = items.map(item => this.buildItemTemplate(item)).join('\n');
     SHOPPING_LIST_DISPLAY.html(htmlItems);
   }
 }
@@ -89,11 +105,19 @@ function handleToggleComplete() {
   });
 }
 
+function handleShowCompletedItems() {
+  $('.container').on('change', '#show-completed-items', function(event) {
+    shoppingList.toggleShowCompleted();
+    shoppingList.renderList();
+  });
+}
+
 function main() {
   handleFormClickSubmit();
   handleFormKeyboardSubmit();
   handleRemoveItem();
   handleToggleComplete();
+  handleShowCompletedItems();
 }
 
 $(main);
