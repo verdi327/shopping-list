@@ -28,7 +28,6 @@ $( function() {
 
   $('.container').keypress(function (e) {
     if (e.which === 13) {
-      console.log('enter key hit');
       $('form').submit();
       return false;
     }
